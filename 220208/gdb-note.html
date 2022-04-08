@@ -1,0 +1,170 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>GDB note</title>
+  <meta name="description" content="GDB note">
+  <meta name="author" content="wvxiw">
+
+  <link rel="stylesheet" href="../style.css">
+
+</head>
+
+
+<body>
+  <header>
+    <div class="container">
+      <div>
+        <a class="logo" href="https://wvxiw.com"> WVXIW</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+  <div class="container">
+    <article>
+      <!-------------------------------------------------->
+      <h1 id="gdb-note">GDB note</h1>
+      <h2 id="shorthand-aliases">Shorthand aliases</h2>
+      <table>
+      <thead>
+      <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      </tr>
+      </thead>
+      <tbody><tr>
+      <td><code>cl</code></td>
+      <td><code>continue</code></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td><code>cl</code></td>
+      <td><code>clear</code></td>
+      <td>Clear breakpoints in location</td>
+      </tr>
+      <tr>
+      <td><code>b</code></td>
+      <td><code>break</code></td>
+      <td>Set a breakpoint</td>
+      </tr>
+      <tr>
+      <td><code>bt</code></td>
+      <td><code>backtrace</code></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td><code>d</code></td>
+      <td><code>delete</code></td>
+      <td>Delete breakpoints/watchpoints/catchpoints by its number</td>
+      </tr>
+      <tr>
+      <td><code>l</code></td>
+      <td><code>list</code></td>
+      <td>Print current line of source code</td>
+      </tr>
+      <tr>
+      <td><code>rb</code></td>
+      <td><code>rbreak</code></td>
+      <td>Set a breakpoint using a regular expression</td>
+      </tr>
+      <tr>
+      <td><code>r</code></td>
+      <td><code>run</code></td>
+      <td>Run your program</td>
+      </tr>
+      <tr>
+      <td><code>u</code></td>
+      <td><code>until</code></td>
+      <td></td>
+      </tr>
+      <tr>
+      <td><code>!</code></td>
+      <td><code>shell</code></td>
+      <td>Run shell command</td>
+      </tr>
+      <tr>
+      <td><br></td>
+      <td></td>
+      <td></td>
+      </tr>
+      </tbody></table>
+      <h2 id="frontmost-commands">Frontmost commands</h2>
+      <p><code>rb regex</code> Set breakpoints on all functions matching the regular expression <em>regex</em><br>e.g.: <code>rb ^ds</code> will set breakpoints to all functions starting with <em>ds</em><br><code>rb filename.c:.</code> Set breakpoints on all functions in the <em>filename.c</em><br><code>b open if strcmp($rdi,&quot;~/error.log&quot;) == 0</code> Break when opening <em>~/error.log</em> file<br><code>b read if $rdi == 12</code> When read a file with descriptior 12<br><code>cl filename:linenum</code> Removes all breakpoints at the specified line
+      <code>clear function</code> Removes all breakpoints from the <em>function</em><br><code>d breakpoint_number</code> Delete one breakpoint whose number is <em>breakpoint_number</em><br><code>set filename-display &lt;relative|absolute|basename&gt;</code><br><code>set follow-fork-mode &lt;parent|child|ask&gt;</code> Set following mode when perform a <em>fork()</em><br><code>set follow-exec-mode &lt;new|same&gt;</code> Lets the process bound to the same/new inferior when performing exec<br><code>set print elements 0</code> Don&#39;t limit when printing<br><code>win</code>  Show source code in a windows (if available)<br><code>set $myvar_main_addr = &amp;main</code>  Set convinience variable 
+      <code>set $mydigit = 0</code><br><code>show convenience</code> or <code>show conv</code> # Show convinience variables<br><code>show environment</code> or <code>show env</code><br><code>bt &lt;num&gt;</code> Trace last <num> funtions from stack<br><code>u &lt;num&gt;</code> or <code>until &lt;num&gt;</code> # Run to <num> line of the current source<br><code>wa &lt;variable&gt;</code> or <code>watch &lt;variable&gt;</code> # Catch a variable change<br><code>commands [list]</code>  Use afrer the <code>b</code> command to invoke other gdb commands. <a href="https://sourceware.org/gdb/current/onlinedocs/gdb/Break-Commands.html#Break-Commands">See more</a><br>e.g.:</p>
+      <pre><code>b foo if i!=43
+      commands
+      silent
+      printf &quot;i=%d\n&quot;,i
+      sum+=u
+      cont
+      end
+      </code></pre>
+      <p><code>!</code> or <code>shell</code> To run a command in shell.<br>e.g.: <code>(gdb) !ls -alh</code>  <code>(gdb) !pwd</code> <code>(gdb) !whoami</code>  </p>
+      <p>The convenience variables <code>$_shell_exitcode</code> and <code>$_shell_exitsignal</code> can be used to examine the exit status of the last shell command launched by <code>shell</code>, <code>make</code>, <code>pipe</code> and <code>|</code></p>
+      <p>To show stdout in another terminal get another&#39;s treminal number<br><code>$ tty</code>
+      <code>/dev/pts/1</code><br>and type it in gdb&#39;s console<br><code>(gdb) tty /dev/pts/1</code>.<br>Or it can be done like this:<br><code>gdb -tty &lt;TTY_PATH&gt; --args ./my_progtam &lt;arguments&gt;</code> TTY_PATH is like <code>/dev/pts/1</code>  </p>
+      <p><code>call foo()</code> or <code>p foo()</code> To call a function from your program  </p>
+      <p><code>info proc &lt;files&gt;&lt;stat&gt;&lt;status&gt;</code> See process info in gdb <a href="https://sourceware.org/gdb/current/onlinedocs/gdb/Process-Information.html">more</a> or<br><code>info proc</code> to get PID and then <code>shell ll /proc/&lt;PID&gt;/fd</code>  </p>
+      <p>Coloring prompt: type of add to <em>~/.gdbinit</em><br><code>set prompt \033[0;34m(gdb) \033[0m</code>  <em>0;32m</em> is also a nice color  </p>
+      <p><code>set print address off</code> Can be done to make <code>bt</code> nice-looking  </p>
+      <p><code>set detach-on-fork off</code> Retain control over forked processes, including nested forks<br><code>info infe</code> Print a list of all inferiors<br><code>infe &lt;N&gt;</code> Switch from one fork to another  </p>
+      <p><code>generate-core-file</code> Produce a core file from your program  </p>
+      <p><code>$ gdb -c &lt;core_file&gt;</code> Read the core file<br><code>sharedlibrary</code> Load symbols form shared libraries<br><code>symbol-file &lt;/path/to/binary&gt;</code> Read symbols from the binary <a href="https://sourceware.org/gdb/wiki/How%20gdb%20loads%20symbol%20files">more</a><br><code>set solib-search-path /path/to/libs</code> Set path to libs (do before loading the core)
+      <code>core /path/to/core/dump</code> Load core during runnig (after setting solib-search-path)</p>
+      <h2 id="gdbinit">.gdbinit</h2>
+      <p>My <code>~/.gdbinit</code>:</p>
+      <pre><code># b foobar - don\&#39;t try setting breakpoints from here - they won\&#39;t work.
+      
+      set follow-fork-mode child
+      set follow-exec-mode same
+      set detach-on-fork off
+      set print address off
+      set print elements 0
+      set prompt \033[0;34m(gdb) \033[0m
+      set confirm off
+      
+      
+      define pp
+          set follow-fork-mode parent
+      end
+      
+      define cc
+          set follow-fork-mode child
+      end
+      
+      define ii
+          info inferiors
+      end
+      
+      define i1
+          inferior 1
+      end
+      </code></pre>
+      <h2 id="links">Links</h2>
+      <p><a href="https://sourceware.org/gdb/onlinedocs/gdb/">https://sourceware.org/gdb/onlinedocs/gdb/</a><br><a href="https://jvns.ca/blog/2018/01/04/how-does-gdb-call-functions/">https://jvns.ca/blog/2018/01/04/how-does-gdb-call-functions/</a>  </p>
+      <br>
+      
+      
+      <!-------------------------------------------------->
+    </article>
+  </div>
+  </main>
+
+
+
+  <footer>
+    <div class="container">
+      <div class="footer">
+        <p class="footer">wvxiw. 2021-2022</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
